@@ -59,6 +59,19 @@ export class EcsFargateDemoStack extends cdk.Stack {
             taskDefinition: taskDefinition,
         })
 
+        /*
+        // 這邊建立 autoscaling
+        const scaling = svc.autoScaleTaskCount({ maxCapacity: 10 });
+        scaling.scaleOnCpuUtilization('CpuScaling', {
+            targetUtilizationPercent: 50
+        });
+
+        scaling.scaleOnRequestCount('RequestScaling', {
+            requestsPerTarget: 10000,
+            targetGroup: tg
+        })
+         */
+
         tg.addTarget(svc)
 
         new cdk.CfnOutput(this, 'CMD', {
@@ -69,10 +82,12 @@ export class EcsFargateDemoStack extends cdk.Stack {
             value: `${DN}`
         })
 
+        // 選取要處理的domain
         const zone = route53.HostedZone.fromLookup(this, 'baseZone', {
             domainName: 'indochat-osp.com'
         })
 
+        // 新增cname指向
         const cName = new route53.CnameRecord(this, 'test.baseZone', {
             zone: zone,
             recordName: DN, //要轉到的位置
