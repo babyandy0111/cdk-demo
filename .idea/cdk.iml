@@ -4,7 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/lambda-demo" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ecs-fargate-demo" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/eks_fargate_demo" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/eks-fargate-demo" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
