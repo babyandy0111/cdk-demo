@@ -1,7 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as eks from '@aws-cdk/aws-eks';
 import * as iam from '@aws-cdk/aws-iam';
-import * as ec2 from '@aws-cdk/aws-ec2';
 
 export class EksFargateDemoStack extends cdk.Stack {
     constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -47,12 +46,26 @@ export class EksFargateDemoStack extends cdk.Stack {
             assumedBy: new iam.AccountRootPrincipal(),
         });
 
-        const cluster = new eks.Cluster(this, "eks", {
+        // 這邊用Fargate
+        const eks_eks = new eks.FargateCluster(this, 'MyFargateCluster', {
             version: eks.KubernetesVersion.V1_19,
-            defaultCapacity: 1,
-            mastersRole,
-            defaultCapacityInstance: new ec2.InstanceType("t3.small"),
+            mastersRole: mastersRole,
+            outputClusterName: true,
+            outputMastersRoleArn: true,
+            outputConfigCommand: true,
+        })
+
+        eks_eks.addFargateProfile("MyProfile", {
+            selectors: [{namespace: 'default'}]
         });
+
+        // // 用ec2
+        // const cluster = new eks.Cluster(this, "eks", {
+        //     version: eks.KubernetesVersion.V1_19,
+        //     defaultCapacity: 1,
+        //     mastersRole,
+        //     defaultCapacityInstance: new ec2.InstanceType("t3.small"),
+        // });
 
         // 用spot, 看價錢
         // cluster.addAutoScalingGroupCapacity("spot", {
