@@ -1,6 +1,6 @@
 import {Construct} from 'constructs';
 import {App, Chart, ChartProps} from 'cdk8s';
-import {KubeService, KubeDeployment, IntOrString} from './imports/k8s';
+import {KubeService, KubeDeployment, IntOrString, KubeConfigMap, KubePod} from './imports/k8s';
 
 export class MyChart extends Chart {
     constructor(scope: Construct, id: string, props: ChartProps = {}) {
@@ -12,10 +12,27 @@ export class MyChart extends Chart {
         new KubeService(this, 'service', {
             spec: {
                 type: 'LoadBalancer',
-                ports: [{port: 80, targetPort: IntOrString.fromNumber(8080)}],
+                ports: [{
+                    port: 80,
+                    targetPort: IntOrString.fromNumber(8080)
+                }],
                 selector: label
-            }
+            },
+            metadata: {
+                name: 'my-service',
+                labels: label
+            },
         });
+
+        new KubeConfigMap(this, 'config', {
+            data: {
+                key1: 'test1',
+                key2: 'test2'
+            },
+            metadata: {
+                name: 'my-config'
+            }
+        })
 
         new KubeDeployment(this, 'deployment', {
             spec: {
@@ -35,8 +52,29 @@ export class MyChart extends Chart {
                         ]
                     }
                 }
+            },
+            metadata: {
+                name: 'my-deployment'
             }
         });
+
+        // 直接建立PoD
+        new KubePod(this, 'pod', {
+            metadata: {
+                name: 'my-pod',
+                labels: label
+            },
+            spec: {
+                containers: [
+                    {
+                        name: 'hello-kubernetes-client-pod',
+                        image: 'wrre/hello-kubernetes-client:v1',
+                        ports: [{containerPort: 3000}]
+                    }
+
+                ]
+            }
+        })
     }
 }
 
