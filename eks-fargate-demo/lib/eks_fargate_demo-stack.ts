@@ -82,5 +82,10 @@ export class EksFargateDemoStack extends cdk.Stack {
         new cdk.CfnOutput(this, "hello-kubernetes-LoadBalancer", {
             value: cluster.getServiceLoadBalancerAddress("hello-kubernetes"),
         });
+
+        new cdk.CfnOutput(this, "hello-k8s-LoadBalancer", {
+            value: cluster.getServiceLoadBalancerAddress("hello-k8s"),
+        });
+
     }
 }

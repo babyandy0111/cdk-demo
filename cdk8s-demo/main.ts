@@ -1,6 +1,6 @@
 import {Construct} from 'constructs';
 import {App, Chart, ChartProps} from 'cdk8s';
-import {KubeService, KubeDeployment, IntOrString, KubeConfigMap, KubePod} from './imports/k8s';
+import {KubeService, KubeDeployment, IntOrString, KubeConfigMap} from './imports/k8s';
 
 export class MyChart extends Chart {
     constructor(scope: Construct, id: string, props: ChartProps = {}) {
@@ -59,22 +59,22 @@ export class MyChart extends Chart {
         });
 
         // 直接建立PoD
-        new KubePod(this, 'pod', {
-            metadata: {
-                name: 'my-pod',
-                labels: label
-            },
-            spec: {
-                containers: [
-                    {
-                        name: 'hello-kubernetes-client-pod',
-                        image: 'wrre/hello-kubernetes-client:v1',
-                        ports: [{containerPort: 3000}]
-                    }
-
-                ]
-            }
-        })
+        // new KubePod(this, 'pod', {
+        //     metadata: {
+        //         name: 'my-pod',
+        //         labels: label
+        //     },
+        //     spec: {
+        //         containers: [
+        //             {
+        //                 name: 'hello-kubernetes-client-pod',
+        //                 image: 'wrre/hello-kubernetes-client:v1',
+        //                 ports: [{containerPort: 3000}]
+        //             }
+        //
+        //         ]
+        //     }
+        // })
     }
 }
 
