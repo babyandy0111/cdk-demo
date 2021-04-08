@@ -34,5 +34,9 @@
         ]
       }
     ]
+  },
+  "hosted-zone:account=791762661746:domainName=indochat.net:region=ap-southeast-1": {
+    "Id": "/hostedzone/ZY16BSPKK9G5F",
+    "Name": "indochat.net."
   }
 }
