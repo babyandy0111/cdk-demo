@@ -3,6 +3,10 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as apigateway from '@aws-cdk/aws-apigateway';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as iam from '@aws-cdk/aws-iam';
+import * as route53 from '@aws-cdk/aws-route53'
+import * as acm from "@aws-cdk/aws-certificatemanager";
+import * as route53Targets from '@aws-cdk/aws-route53-targets'
+
 
 export class CdkStack extends cdk.Stack {
     constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -31,7 +35,23 @@ export class CdkStack extends cdk.Stack {
             runtime: lambda.Runtime.GO_1_X,
         });
 
+        const rootDomain = 'indochat-osp.com';
+
+        const zone = route53.HostedZone.fromLookup(this, "MyCoolHostedZone", {
+            domainName: rootDomain,
+        });
+
+        const cert = new acm.Certificate(this, "MySecureWildcardCert", {
+            domainName: `*.${rootDomain}`,
+            validation: acm.CertificateValidation.fromDns(zone),
+        });
+
         const golang_apigateway = new apigateway.RestApi(this, 'GoApi', {
+            domainName: {
+                domainName: `api-test.${rootDomain}`,
+                certificate: acm.Certificate.fromCertificateArn(this, "my-cert", cert.certificateArn),
+                endpointType: apigateway.EndpointType.REGIONAL,
+            },
             defaultCorsPreflightOptions: {
                 allowMethods: ['OPTIONS', 'GET'],
                 allowHeaders: ['Content-Type'],
@@ -43,8 +63,40 @@ export class CdkStack extends cdk.Stack {
         const golangIntegration = new apigateway.LambdaIntegration(testFunction, {});
         golang_apigateway.root.addMethod('GET', golangIntegration);
 
+        const books = golang_apigateway.root.addResource('books');
+        books.addMethod('POST', golangIntegration);
+        // books.addMethod('POST');
+
         // Output
         new cdk.CfnOutput(this, 'golang-lambda-url', {value: golang_apigateway.url!});
+
+        // new route53.CnameRecord(this, 'MyAPIRecord', {
+        //     domainName: "q7twdjxjqk.execute-api.ap-southeast-1.amazonaws.com",
+        //     zone: zone,
+        //     recordName: 'api-test',
+        // });
+
+        // new route53.ARecord(this, 'MyAPIRecord', {
+        //     zone,
+        //     recordName: 'api-test.indochat-osp.com',
+        //     target: route53.RecordTarget.fromAlias({
+        //         bind() {
+        //             return {
+        //                 dnsName: "q7twdjxjqk.execute-api.ap-southeast-1.amazonaws.com", // Specify the applicable domain name for your API.,
+        //                 hostedZoneId: zone.hostedZoneId, // Specify the hosted zone ID for your API.
+        //             };
+        //         },
+        //     }),
+        // });
+
+        new route53.ARecord(this, "apiDNS", {
+            zone: zone,
+            recordName: "api-test",
+            target: route53.RecordTarget.fromAlias(
+                new route53Targets.ApiGateway(golang_apigateway)
+            ),
+        });
+
 
         // 建立一個apigateway
         const node_apigateway = new apigateway.RestApi(this, 'Api', {
