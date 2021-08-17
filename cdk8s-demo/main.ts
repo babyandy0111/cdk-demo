@@ -1,6 +1,8 @@
 import {Construct} from 'constructs';
+import * as kplus from 'cdk8s-plus-17';
 import {App, Chart, ChartProps} from 'cdk8s';
 import {KubeService, KubeDeployment, IntOrString, KubeConfigMap} from './imports/k8s';
+import {IngressV1Beta1} from "cdk8s-plus-17";
 
 export class MyChart extends Chart {
     constructor(scope: Construct, id: string, props: ChartProps = {}) {
@@ -75,6 +77,19 @@ export class MyChart extends Chart {
         //         ]
         //     }
         // })
+
+        const helloDeployment = new kplus.Deployment(this, 'test', {
+            containers: [
+                {
+                    image: 'hashicorp/http-echo',
+                    args: [ '-text', 'hello ingress' ]
+                }
+            ]
+        });
+
+        const helloService = helloDeployment.expose(5678);
+        const ingress = new IngressV1Beta1(this, 'ingress');
+        ingress.addRule('/hello', kplus.IngressV1Beta1Backend.fromService(helloService));
     }
 }
 
