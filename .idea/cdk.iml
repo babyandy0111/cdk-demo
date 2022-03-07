@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/eks-fargate-demo" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apigateway-demo" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/cdk8s-demo" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cdk-eks-fargate" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
